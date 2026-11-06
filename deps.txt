@@ -1,0 +1,417 @@
+[INFO] Scanning for projects...
+[INFO] Loaded 24383 auto-discovered prefixes for remote repository central (prefixes-central.txt)
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] Auction System                                                     [pom]
+[INFO] Auction Contract                                                   [jar]
+[INFO] Auction Domain                                                     [jar]
+[INFO] Auction Application                                                [jar]
+[INFO] Auction Infrastructure                                             [jar]
+[INFO] Auction Server                                                     [jar]
+[INFO] Auction Client                                                     [jar]
+[INFO] Loaded 64 auto-discovered prefixes for remote repository apache.snapshots (prefixes-apache.snapshots.txt)
+[INFO] 
+[INFO] ---------------------< com.auction:auction-system >---------------------
+[INFO] Building Auction System 1.0.0-SNAPSHOT                             [1/7]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.5.0:enforce (enforce-environment) @ auction-system ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO] Rule 1: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO] 
+[INFO] --- checkstyle:3.5.0:check (checkstyle-google) @ auction-system ---
+[WARNING] Could not transfer metadata /.meta/prefixes.txt from/to jvnet-nexus-releases (https://maven.java.net/content/repositories/releases/): (certificate_expired) PKIX path validation failed: java.security.cert.CertPathValidatorException: validity check failed
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- dependency:3.11.0:tree (default-cli) @ auction-system ---
+[INFO] com.auction:auction-system:pom:1.0.0-SNAPSHOT
+[INFO] +- org.junit.jupiter:junit-jupiter:jar:5.11.3:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.11.3:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.3.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.11.3:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-params:jar:5.11.3:test
+[INFO] |  \- org.junit.jupiter:junit-jupiter-engine:jar:5.11.3:test
+[INFO] |     \- org.junit.platform:junit-platform-engine:jar:1.11.3:test
+[INFO] +- org.assertj:assertj-core:jar:3.26.3:test
+[INFO] |  \- net.bytebuddy:byte-buddy:jar:1.14.18:test
+[INFO] \- org.mockito:mockito-junit-jupiter:jar:5.14.2:test
+[INFO]    \- org.mockito:mockito-core:jar:5.14.2:test
+[INFO]       +- net.bytebuddy:byte-buddy-agent:jar:1.15.4:test
+[INFO]       \- org.objenesis:objenesis:jar:3.3:test
+[INFO] 
+[INFO] --------------------< com.auction:auction-contract >--------------------
+[INFO] Building Auction Contract 1.0.0-SNAPSHOT                           [2/7]
+[INFO]   from auction-contract\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.5.0:enforce (enforce-environment) @ auction-contract ---
+[INFO] 
+[INFO] --- checkstyle:3.5.0:check (checkstyle-google) @ auction-contract ---
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ auction-contract ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-contract\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ auction-contract ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ auction-contract ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-contract\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ auction-contract ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ auction-contract ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ auction-contract ---
+[WARNING] JAR will be empty - no content was marked for inclusion!
+[INFO] 
+[INFO] --- dependency:3.11.0:tree (default-cli) @ auction-contract ---
+[INFO] com.auction:auction-contract:jar:1.0.0-SNAPSHOT
+[INFO] +- com.fasterxml.jackson.core:jackson-databind:jar:2.18.1:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.18.1:compile
+[INFO] |  \- com.fasterxml.jackson.core:jackson-core:jar:2.18.1:compile
+[INFO] +- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.18.1:compile
+[INFO] +- org.junit.jupiter:junit-jupiter:jar:5.11.3:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.11.3:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.3.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.11.3:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-params:jar:5.11.3:test
+[INFO] |  \- org.junit.jupiter:junit-jupiter-engine:jar:5.11.3:test
+[INFO] |     \- org.junit.platform:junit-platform-engine:jar:1.11.3:test
+[INFO] +- org.assertj:assertj-core:jar:3.26.3:test
+[INFO] |  \- net.bytebuddy:byte-buddy:jar:1.14.18:test
+[INFO] \- org.mockito:mockito-junit-jupiter:jar:5.14.2:test
+[INFO]    \- org.mockito:mockito-core:jar:5.14.2:test
+[INFO]       +- net.bytebuddy:byte-buddy-agent:jar:1.15.4:test
+[INFO]       \- org.objenesis:objenesis:jar:3.3:test
+[INFO] 
+[INFO] ---------------------< com.auction:auction-domain >---------------------
+[INFO] Building Auction Domain 1.0.0-SNAPSHOT                             [3/7]
+[INFO]   from auction-domain\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.5.0:enforce (enforce-environment) @ auction-domain ---
+[INFO] 
+[INFO] --- checkstyle:3.5.0:check (checkstyle-google) @ auction-domain ---
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ auction-domain ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-domain\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ auction-domain ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ auction-domain ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-domain\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ auction-domain ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ auction-domain ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ auction-domain ---
+[WARNING] JAR will be empty - no content was marked for inclusion!
+[INFO] 
+[INFO] --- dependency:3.11.0:tree (default-cli) @ auction-domain ---
+[INFO] com.auction:auction-domain:jar:1.0.0-SNAPSHOT
+[INFO] +- com.auction:auction-contract:jar:1.0.0-SNAPSHOT:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.18.1:compile
+[INFO] |  |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.18.1:compile
+[INFO] |  |  \- com.fasterxml.jackson.core:jackson-core:jar:2.18.1:compile
+[INFO] |  \- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.18.1:compile
+[INFO] +- com.tngtech.archunit:archunit-junit5:jar:1.3.0:test
+[INFO] |  +- com.tngtech.archunit:archunit-junit5-api:jar:1.3.0:test
+[INFO] |  |  \- com.tngtech.archunit:archunit:jar:1.3.0:test
+[INFO] |  |     \- org.slf4j:slf4j-api:jar:2.0.16:test
+[INFO] |  \- com.tngtech.archunit:archunit-junit5-engine:jar:1.3.0:test
+[INFO] |     \- com.tngtech.archunit:archunit-junit5-engine-api:jar:1.3.0:test
+[INFO] +- org.junit.jupiter:junit-jupiter:jar:5.11.3:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.11.3:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.3.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.11.3:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-params:jar:5.11.3:test
+[INFO] |  \- org.junit.jupiter:junit-jupiter-engine:jar:5.11.3:test
+[INFO] |     \- org.junit.platform:junit-platform-engine:jar:1.11.3:test
+[INFO] +- org.assertj:assertj-core:jar:3.26.3:test
+[INFO] |  \- net.bytebuddy:byte-buddy:jar:1.14.18:test
+[INFO] \- org.mockito:mockito-junit-jupiter:jar:5.14.2:test
+[INFO]    \- org.mockito:mockito-core:jar:5.14.2:test
+[INFO]       +- net.bytebuddy:byte-buddy-agent:jar:1.15.4:test
+[INFO]       \- org.objenesis:objenesis:jar:3.3:test
+[INFO] 
+[INFO] ------------------< com.auction:auction-application >-------------------
+[INFO] Building Auction Application 1.0.0-SNAPSHOT                        [4/7]
+[INFO]   from auction-application\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.5.0:enforce (enforce-environment) @ auction-application ---
+[INFO] 
+[INFO] --- checkstyle:3.5.0:check (checkstyle-google) @ auction-application ---
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ auction-application ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-application\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ auction-application ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ auction-application ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-application\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ auction-application ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ auction-application ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ auction-application ---
+[WARNING] JAR will be empty - no content was marked for inclusion!
+[INFO] 
+[INFO] --- dependency:3.11.0:tree (default-cli) @ auction-application ---
+[INFO] com.auction:auction-application:jar:1.0.0-SNAPSHOT
+[INFO] +- com.auction:auction-domain:jar:1.0.0-SNAPSHOT:compile
+[INFO] +- com.auction:auction-contract:jar:1.0.0-SNAPSHOT:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.18.1:compile
+[INFO] |  |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.18.1:compile
+[INFO] |  |  \- com.fasterxml.jackson.core:jackson-core:jar:2.18.1:compile
+[INFO] |  \- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.18.1:compile
+[INFO] +- org.slf4j:slf4j-api:jar:2.0.16:compile
+[INFO] +- org.junit.jupiter:junit-jupiter:jar:5.11.3:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.11.3:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.3.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.11.3:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-params:jar:5.11.3:test
+[INFO] |  \- org.junit.jupiter:junit-jupiter-engine:jar:5.11.3:test
+[INFO] |     \- org.junit.platform:junit-platform-engine:jar:1.11.3:test
+[INFO] +- org.assertj:assertj-core:jar:3.26.3:test
+[INFO] |  \- net.bytebuddy:byte-buddy:jar:1.14.18:test
+[INFO] \- org.mockito:mockito-junit-jupiter:jar:5.14.2:test
+[INFO]    \- org.mockito:mockito-core:jar:5.14.2:test
+[INFO]       +- net.bytebuddy:byte-buddy-agent:jar:1.15.4:test
+[INFO]       \- org.objenesis:objenesis:jar:3.3:test
+[INFO] 
+[INFO] -----------------< com.auction:auction-infrastructure >-----------------
+[INFO] Building Auction Infrastructure 1.0.0-SNAPSHOT                     [5/7]
+[INFO]   from auction-infrastructure\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] Loaded 24383 auto-discovered prefixes for remote repository jcenter (prefixes-jcenter.txt)
+[INFO] 
+[INFO] --- enforcer:3.5.0:enforce (enforce-environment) @ auction-infrastructure ---
+[INFO] 
+[INFO] --- checkstyle:3.5.0:check (checkstyle-google) @ auction-infrastructure ---
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ auction-infrastructure ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-infrastructure\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ auction-infrastructure ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ auction-infrastructure ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-infrastructure\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ auction-infrastructure ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ auction-infrastructure ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ auction-infrastructure ---
+[WARNING] JAR will be empty - no content was marked for inclusion!
+[INFO] 
+[INFO] --- dependency:3.11.0:tree (default-cli) @ auction-infrastructure ---
+[INFO] com.auction:auction-infrastructure:jar:1.0.0-SNAPSHOT
+[INFO] +- com.auction:auction-application:jar:1.0.0-SNAPSHOT:compile
+[INFO] +- com.auction:auction-domain:jar:1.0.0-SNAPSHOT:compile
+[INFO] +- com.auction:auction-contract:jar:1.0.0-SNAPSHOT:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.18.1:compile
+[INFO] |  |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.18.1:compile
+[INFO] |  |  \- com.fasterxml.jackson.core:jackson-core:jar:2.18.1:compile
+[INFO] |  \- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.18.1:compile
+[INFO] +- at.favre.lib:bcrypt:jar:0.10.2:compile
+[INFO] |  \- at.favre.lib:bytes:jar:1.5.0:compile
+[INFO] +- org.slf4j:slf4j-api:jar:2.0.16:compile
+[INFO] +- com.h2database:h2:jar:2.3.232:runtime
+[INFO] +- org.junit.jupiter:junit-jupiter:jar:5.11.3:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.11.3:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.3.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.11.3:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-params:jar:5.11.3:test
+[INFO] |  \- org.junit.jupiter:junit-jupiter-engine:jar:5.11.3:test
+[INFO] |     \- org.junit.platform:junit-platform-engine:jar:1.11.3:test
+[INFO] +- org.assertj:assertj-core:jar:3.26.3:test
+[INFO] |  \- net.bytebuddy:byte-buddy:jar:1.14.18:test
+[INFO] \- org.mockito:mockito-junit-jupiter:jar:5.14.2:test
+[INFO]    \- org.mockito:mockito-core:jar:5.14.2:test
+[INFO]       +- net.bytebuddy:byte-buddy-agent:jar:1.15.4:test
+[INFO]       \- org.objenesis:objenesis:jar:3.3:test
+[INFO] 
+[INFO] ---------------------< com.auction:auction-server >---------------------
+[INFO] Building Auction Server 1.0.0-SNAPSHOT                             [6/7]
+[INFO]   from auction-server\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.5.0:enforce (enforce-environment) @ auction-server ---
+[INFO] 
+[INFO] --- checkstyle:3.5.0:check (checkstyle-google) @ auction-server ---
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ auction-server ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-server\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ auction-server ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ auction-server ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-server\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ auction-server ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ auction-server ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ auction-server ---
+[WARNING] JAR will be empty - no content was marked for inclusion!
+[INFO] 
+[INFO] --- dependency:3.11.0:tree (default-cli) @ auction-server ---
+[INFO] com.auction:auction-server:jar:1.0.0-SNAPSHOT
+[INFO] +- com.auction:auction-contract:jar:1.0.0-SNAPSHOT:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.18.1:compile
+[INFO] |  |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.18.1:compile
+[INFO] |  |  \- com.fasterxml.jackson.core:jackson-core:jar:2.18.1:compile
+[INFO] |  \- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.18.1:compile
+[INFO] +- com.auction:auction-application:jar:1.0.0-SNAPSHOT:compile
+[INFO] |  \- com.auction:auction-domain:jar:1.0.0-SNAPSHOT:compile
+[INFO] +- com.auction:auction-infrastructure:jar:1.0.0-SNAPSHOT:compile
+[INFO] |  +- at.favre.lib:bcrypt:jar:0.10.2:compile
+[INFO] |  |  \- at.favre.lib:bytes:jar:1.5.0:compile
+[INFO] |  \- com.h2database:h2:jar:2.3.232:runtime
+[INFO] +- org.slf4j:slf4j-api:jar:2.0.16:compile
+[INFO] +- ch.qos.logback:logback-classic:jar:1.5.12:runtime
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.5.12:runtime
+[INFO] +- com.tngtech.archunit:archunit-junit5:jar:1.3.0:test
+[INFO] |  +- com.tngtech.archunit:archunit-junit5-api:jar:1.3.0:test
+[INFO] |  |  \- com.tngtech.archunit:archunit:jar:1.3.0:test
+[INFO] |  \- com.tngtech.archunit:archunit-junit5-engine:jar:1.3.0:test
+[INFO] |     \- com.tngtech.archunit:archunit-junit5-engine-api:jar:1.3.0:test
+[INFO] +- org.junit.jupiter:junit-jupiter:jar:5.11.3:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.11.3:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.3.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.11.3:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-params:jar:5.11.3:test
+[INFO] |  \- org.junit.jupiter:junit-jupiter-engine:jar:5.11.3:test
+[INFO] |     \- org.junit.platform:junit-platform-engine:jar:1.11.3:test
+[INFO] +- org.assertj:assertj-core:jar:3.26.3:test
+[INFO] |  \- net.bytebuddy:byte-buddy:jar:1.14.18:test
+[INFO] \- org.mockito:mockito-junit-jupiter:jar:5.14.2:test
+[INFO]    \- org.mockito:mockito-core:jar:5.14.2:test
+[INFO]       +- net.bytebuddy:byte-buddy-agent:jar:1.15.4:test
+[INFO]       \- org.objenesis:objenesis:jar:3.3:test
+[INFO] 
+[INFO] ---------------------< com.auction:auction-client >---------------------
+[INFO] Building Auction Client 1.0.0-SNAPSHOT                             [7/7]
+[INFO]   from auction-client\pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- enforcer:3.5.0:enforce (enforce-environment) @ auction-client ---
+[INFO] 
+[INFO] --- checkstyle:3.5.0:check (checkstyle-google) @ auction-client ---
+[INFO] Starting audit...
+Audit done.
+[INFO] You have 0 Checkstyle violations.
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ auction-client ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-client\src\main\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ auction-client ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ auction-client ---
+[INFO] skip non existing resourceDirectory C:\Users\Niran\Documents\INTELLIJ IDEA\baitaplon'\baitaplon\auction-client\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ auction-client ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.5.2:test (default-test) @ auction-client ---
+[INFO] Tests are skipped.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ auction-client ---
+[WARNING] JAR will be empty - no content was marked for inclusion!
+[INFO] 
+[INFO] --- dependency:3.11.0:tree (default-cli) @ auction-client ---
+[INFO] com.auction:auction-client:jar:1.0.0-SNAPSHOT
+[INFO] +- com.auction:auction-contract:jar:1.0.0-SNAPSHOT:compile
+[INFO] |  +- com.fasterxml.jackson.core:jackson-databind:jar:2.18.1:compile
+[INFO] |  |  +- com.fasterxml.jackson.core:jackson-annotations:jar:2.18.1:compile
+[INFO] |  |  \- com.fasterxml.jackson.core:jackson-core:jar:2.18.1:compile
+[INFO] |  \- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:jar:2.18.1:compile
+[INFO] +- org.openjfx:javafx-controls:jar:21.0.5:compile
+[INFO] |  +- org.openjfx:javafx-controls:jar:win:21.0.5:compile
+[INFO] |  \- org.openjfx:javafx-graphics:jar:21.0.5:compile
+[INFO] |     +- org.openjfx:javafx-graphics:jar:win:21.0.5:compile
+[INFO] |     \- org.openjfx:javafx-base:jar:21.0.5:compile
+[INFO] |        \- org.openjfx:javafx-base:jar:win:21.0.5:compile
+[INFO] +- org.openjfx:javafx-fxml:jar:21.0.5:compile
+[INFO] |  \- org.openjfx:javafx-fxml:jar:win:21.0.5:compile
+[INFO] +- org.slf4j:slf4j-api:jar:2.0.16:compile
+[INFO] +- ch.qos.logback:logback-classic:jar:1.5.12:runtime
+[INFO] |  \- ch.qos.logback:logback-core:jar:1.5.12:runtime
+[INFO] +- com.tngtech.archunit:archunit-junit5:jar:1.3.0:test
+[INFO] |  +- com.tngtech.archunit:archunit-junit5-api:jar:1.3.0:test
+[INFO] |  |  \- com.tngtech.archunit:archunit:jar:1.3.0:test
+[INFO] |  \- com.tngtech.archunit:archunit-junit5-engine:jar:1.3.0:test
+[INFO] |     \- com.tngtech.archunit:archunit-junit5-engine-api:jar:1.3.0:test
+[INFO] +- org.junit.jupiter:junit-jupiter:jar:5.11.3:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-api:jar:5.11.3:test
+[INFO] |  |  +- org.opentest4j:opentest4j:jar:1.3.0:test
+[INFO] |  |  +- org.junit.platform:junit-platform-commons:jar:1.11.3:test
+[INFO] |  |  \- org.apiguardian:apiguardian-api:jar:1.1.2:test
+[INFO] |  +- org.junit.jupiter:junit-jupiter-params:jar:5.11.3:test
+[INFO] |  \- org.junit.jupiter:junit-jupiter-engine:jar:5.11.3:test
+[INFO] |     \- org.junit.platform:junit-platform-engine:jar:1.11.3:test
+[INFO] +- org.assertj:assertj-core:jar:3.26.3:test
+[INFO] |  \- net.bytebuddy:byte-buddy:jar:1.14.18:test
+[INFO] \- org.mockito:mockito-junit-jupiter:jar:5.14.2:test
+[INFO]    \- org.mockito:mockito-core:jar:5.14.2:test
+[INFO]       +- net.bytebuddy:byte-buddy-agent:jar:1.15.4:test
+[INFO]       \- org.objenesis:objenesis:jar:3.3:test
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for Auction System 1.0.0-SNAPSHOT:
+[INFO] 
+[INFO] Auction System ..................................... SUCCESS [  2.847 s]
+[INFO] Auction Contract ................................... SUCCESS [  0.730 s]
+[INFO] Auction Domain ..................................... SUCCESS [  0.370 s]
+[INFO] Auction Application ................................ SUCCESS [  0.111 s]
+[INFO] Auction Infrastructure ............................. SUCCESS [  0.147 s]
+[INFO] Auction Server ..................................... SUCCESS [  0.117 s]
+[INFO] Auction Client ..................................... SUCCESS [  0.109 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  6.140 s
+[INFO] Finished at: 2026-11-06T08:58:08+07:00
+[INFO] ------------------------------------------------------------------------
