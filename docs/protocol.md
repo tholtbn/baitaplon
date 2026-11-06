@@ -1,0 +1,1 @@
+Client cần phân biệt dòng nào là Response và dòng nào là ServerEvent. Quy ước: dòng có trường requestId là Response, dòng có eventType là event.

@@ -8,6 +8,7 @@ import com.auction.domain.exception.ValidationException;
 import com.auction.domain.model.Entity;
 import com.auction.domain.model.Guard;
 import com.auction.domain.rule.AuctionStateMachine;
+import com.auction.domain.rule.AntiSnipingPolicy;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
 
 /**
  * Phiên đấu giá: giữ giá hiện tại, người dẫn đầu, lịch sử bid và trạng thái.
@@ -28,7 +30,8 @@ public class Auction extends Entity {
     private final String sellerId;
     private final BigDecimal startingPrice;
     private final Instant startTime;
-    private final Instant endTime;
+    private Instant endTime;
+    private final AntiSnipingPolicy antiSniping;
     private final List<BidTransaction> bids = new ArrayList<>();
 
     private AuctionStatus status = AuctionStatus.OPEN;
@@ -40,19 +43,21 @@ public class Auction extends Entity {
      *
      * @throws ValidationException nếu dữ liệu sai hoặc {@code endTime} không sau {@code startTime}
      */
-    public Auction(
-            String id,
-            String itemId,
-            String sellerId,
-            BigDecimal startingPrice,
-            Instant startTime,
-            Instant endTime) {
+    public Auction(String id, String itemId, String sellerId, BigDecimal startingPrice,
+                   Instant startTime, Instant endTime) {
+        this(id, itemId, sellerId, startingPrice, startTime, endTime,
+                AntiSnipingPolicy.disabled());
+    }
+
+    public Auction(String id, String itemId, String sellerId, BigDecimal startingPrice,
+                   Instant startTime, Instant endTime, AntiSnipingPolicy antiSniping) {
         super(id);
         this.itemId = Guard.requireNotBlank(itemId, "itemId");
         this.sellerId = Guard.requireNotBlank(sellerId, "sellerId");
         this.startingPrice = Guard.requirePositive(startingPrice, "startingPrice");
         this.startTime = Guard.requireNonNull(startTime, "startTime");
         this.endTime = Guard.requireNonNull(endTime, "endTime");
+        this.antiSniping = Guard.requireNonNull(antiSniping, "antiSniping");
         if (!endTime.isAfter(startTime)) {
             throw new ValidationException("endTime must be after startTime");
         }
@@ -84,6 +89,7 @@ public class Auction extends Entity {
         bids.add(bid);
         currentPrice = amount;
         leaderId = bidderId;
+        endTime = antiSniping.extend(now, endTime);
         return bid;
     }
 

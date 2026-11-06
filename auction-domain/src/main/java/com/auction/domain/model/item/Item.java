@@ -12,9 +12,9 @@ import java.math.BigDecimal;
 public abstract class Item extends Entity {
 
     private final String sellerId;
-    private final String name;
-    private final String description;
-    private final BigDecimal startingPrice;
+    private String name;
+    private String description;
+    private BigDecimal startingPrice;
 
     protected Item(
             String id, String sellerId, String name, String description, BigDecimal startingPrice) {
@@ -23,6 +23,14 @@ public abstract class Item extends Entity {
         this.name = Guard.requireNotBlank(name, "name");
         this.description = description == null ? "" : description;
         this.startingPrice = Guard.requirePositive(startingPrice, "startingPrice");
+    }
+
+    public void updateBasicInfo(String name, String description, BigDecimal startingPrice) {
+        String newName = Guard.requireNotBlank(name, "name");
+        BigDecimal newPrice = Guard.requirePositive(startingPrice, "startingPrice");
+        this.name = newName;
+        this.description = description == null ? "" : description;
+        this.startingPrice = newPrice;
     }
 
     /** Loại sản phẩm, do lớp con quyết định. */
