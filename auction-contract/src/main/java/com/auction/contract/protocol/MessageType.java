@@ -1,10 +1,12 @@
+// protocol/MessageType.java
+package com.auction.contract.protocol;
+
 public enum MessageType {
     REGISTER, LOGIN, LOGOUT,
     LIST_AUCTIONS, GET_AUCTION, GET_BID_HISTORY,
     PLACE_BID, SET_AUTO_BID,
     SUBSCRIBE, UNSUBSCRIBE,
     LIST_MY_ITEMS, CREATE_ITEM, UPDATE_ITEM, DELETE_ITEM,
-    CREATE_AUCTION, CANCEL_AUCTION,
-    LIST_USERS                      // admin
+    CREATE_AUCTION, CANCEL_AUCTION, PAY_AUCTION,
+    LIST_USERS // admin
 }
-

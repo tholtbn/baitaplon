@@ -8,8 +8,6 @@ import com.auction.domain.exception.AuctionClosedException;
 import com.auction.domain.exception.IllegalStateTransitionException;
 import com.auction.domain.exception.InvalidBidException;
 import com.auction.domain.exception.ValidationException;
-
-import java.beans.Beans;
 import java.math.BigDecimal;
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
@@ -47,9 +45,6 @@ class AuctionTest {
     void rejectsEndTimeNotAfterStartTime() {
         assertThatThrownBy(() -> new Auction("a1", "item1", "seller1", money("100"), START, START))
                 .isInstanceOf(ValidationException.class);
-    }
-
-    private Beans assertThatThrownBy(Object o) {
     }
 
     @Test

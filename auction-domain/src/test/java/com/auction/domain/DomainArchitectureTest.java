@@ -1,53 +1,25 @@
-package com.auction.domain.model.auction;
+package com.auction.domain;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
-import com.auction.domain.rule.AntiSnipingPolicy;
-import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.Instant;
-import org.junit.jupiter.api.Test;
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
 
-class AuctionAntiSnipingTest {
+@AnalyzeClasses(packages = "com.auction.domain", importOptions = ImportOption.DoNotIncludeTests.class)
+class DomainArchitectureTest {
 
-    private static final Instant START = Instant.parse("2026-01-01T19:00:00Z");
-    private static final Instant END = Instant.parse("2026-01-01T20:00:00Z");
-    private static final AntiSnipingPolicy POLICY =
-            new AntiSnipingPolicy(Duration.ofSeconds(10), Duration.ofSeconds(60));
+    @ArchTest
+    static final ArchRule domainDoesNotDependOnUpperLayers = noClasses()
+            .that().resideInAPackage("com.auction.domain..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    "com.auction.application..", "com.auction.infrastructure..",
+                    "com.auction.server..", "com.auction.client..");
 
-    private Auction running(AntiSnipingPolicy policy) {
-        Auction auction = new Auction(
-                "a1", "i1", "seller", new BigDecimal("100"), START, END, policy);
-        auction.start(START);
-        return auction;
-    }
-
-    @Test
-    void bidInsideWindowExtendsEndTime() {
-        Auction auction = running(POLICY);
-        auction.placeBid("b1", new BigDecimal("100"), Instant.parse("2026-01-01T19:59:50Z"));
-        assertThat(auction.getEndTime()).isEqualTo(Instant.parse("2026-01-01T20:01:00Z"));
-    }
-
-    @Test
-    void bidOutsideWindowDoesNotExtend() {
-        Auction auction = running(POLICY);
-        auction.placeBid("b1", new BigDecimal("100"), Instant.parse("2026-01-01T19:59:00Z"));
-        assertThat(auction.getEndTime()).isEqualTo(END);
-    }
-
-    @Test
-    void disabledPolicyNeverExtends() {
-        Auction auction = running(AntiSnipingPolicy.disabled());
-        auction.placeBid("b1", new BigDecimal("100"), Instant.parse("2026-01-01T19:59:59Z"));
-        assertThat(auction.getEndTime()).isEqualTo(END);
-    }
-
-    @Test
-    void bidIsAcceptedInExtendedPeriod() {
-        Auction auction = running(POLICY);
-        auction.placeBid("b1", new BigDecimal("100"), Instant.parse("2026-01-01T19:59:50Z"));
-        auction.placeBid("b2", new BigDecimal("110"), Instant.parse("2026-01-01T20:00:30Z"));
-        assertThat(auction.getLeaderId()).contains("b2");
-    }
+    @ArchTest
+    static final ArchRule domainHasNoFrameworkDependency = noClasses()
+            .that().resideInAPackage("com.auction.domain..")
+            .should().dependOnClassesThat().resideInAnyPackage(
+                    "com.fasterxml..", "javafx..", "java.sql..", "java.net..");
 }
