@@ -5,7 +5,7 @@ import com.auction.application.exception.UnauthorizedException;
 import com.auction.application.port.AuctionRepository;
 import com.auction.application.port.ItemRepository;
 import com.auction.domain.model.auction.Auction;
-import com.auction.domain.model.auction.AuctionStatus;
+import com.auction.contract.vocab.AuctionStatus;
 import com.auction.domain.model.item.Item;
 import com.auction.domain.model.user.User;
 
@@ -68,18 +68,18 @@ public class ItemService {
                     "Cannot delete an item in an active auction");
         }
 
-        itemRepository.delete(itemId);
+        itemRepository.deleteById(itemId);
     }
 
     public List<Item> listMyItems(User seller) {
         checkSeller(seller);
-        return itemRepository.findBySeller(seller.getId());
+        return itemRepository.findBySellerId(seller.getId());
     }
 
     private Item findItem(String itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() ->
-                        new NotFoundException("Item not found: " + itemId));
+                        new NotFoundException("Item", itemId));
     }
 
     private void checkOwnership(User seller, Item item) {

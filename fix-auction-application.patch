@@ -1,0 +1,256 @@
+diff --git a/auction-application/src/main/java/com/auction/application/concurrency/AuctionLockRegistry.java b/auction-application/src/main/java/com/auction/application/concurrency/AuctionLockRegistry.java
+index f816168..765189b 100644
+--- a/auction-application/src/main/java/com/auction/application/concurrency/AuctionLockRegistry.java
++++ b/auction-application/src/main/java/com/auction/application/concurrency/AuctionLockRegistry.java
+@@ -7,10 +7,20 @@ import java.util.concurrent.locks.ReentrantLock;
+ public final class AuctionLockRegistry {
+     private final ConcurrentHashMap<String, ReentrantLock> locks = new ConcurrentHashMap<>();
+ 
+-    public ReentrantLock lockFor(String auctionId) {
+-        if (auctionId == null || auctionId.isBlank()) throw new IllegalArgumentException("auctionId is required");
++    /**
++     * Lấy (hoặc tạo mới) khóa của một phiên đấu giá. Cùng một {@code auctionId} luôn trả về
++     * cùng một khóa.
++     *
++     * @throws IllegalArgumentException nếu {@code auctionId} null hoặc rỗng
++     */
++    public ReentrantLock getLock(String auctionId) {
++        if (auctionId == null || auctionId.isBlank()) {
++            throw new IllegalArgumentException("auctionId is required");
++        }
+         return locks.computeIfAbsent(auctionId, ignored -> new ReentrantLock());
+     }
+ 
+-    public int lockCount() { return locks.size(); }
++    public int lockCount() {
++        return locks.size();
++    }
+ }
+diff --git a/auction-application/src/main/java/com/auction/application/event/AuctionFinishedEvent.java b/auction-application/src/main/java/com/auction/application/event/AuctionFinishedEvent.java
+index e7f0386..fc2fd3c 100644
+--- a/auction-application/src/main/java/com/auction/application/event/AuctionFinishedEvent.java
++++ b/auction-application/src/main/java/com/auction/application/event/AuctionFinishedEvent.java
+@@ -1,7 +1,25 @@
+ package com.auction.application.event;
+ 
++import java.math.BigDecimal;
+ import java.time.Instant;
+ 
+-public record AuctionFinishedEvent(String auctionId, Instant occurredAt) implements DomainEvent {
+-    public AuctionFinishedEvent { if (auctionId == null || occurredAt == null) throw new IllegalArgumentException("event fields are required"); }
++/**
++ * Phát ra khi một phiên đấu giá kết thúc.
++ *
++ * @param auctionId  phiên vừa kết thúc
++ * @param winnerId   người thắng; {@code null} nếu phiên kết thúc mà không có ai đặt giá
++ * @param finalPrice giá cuối cùng của phiên
++ * @param occurredAt thời điểm sự kiện xảy ra
++ */
++public record AuctionFinishedEvent(String auctionId, String winnerId, BigDecimal finalPrice,
++                                   Instant occurredAt) implements DomainEvent {
++    public AuctionFinishedEvent {
++        if (auctionId == null || finalPrice == null || occurredAt == null) {
++            throw new IllegalArgumentException("auctionId, finalPrice and occurredAt are required");
++        }
++    }
++
++    public boolean hasWinner() {
++        return winnerId != null;
++    }
+ }
+diff --git a/auction-application/src/main/java/com/auction/application/port/AuctionRepository.java b/auction-application/src/main/java/com/auction/application/port/AuctionRepository.java
+index 0451c12..dca7a6b 100644
+--- a/auction-application/src/main/java/com/auction/application/port/AuctionRepository.java
++++ b/auction-application/src/main/java/com/auction/application/port/AuctionRepository.java
+@@ -1,7 +1,7 @@
+ package com.auction.application.port;
+ 
+ import com.auction.domain.model.auction.Auction;
+-import com.auction.domain.model.auction.AuctionStatus;
++import com.auction.contract.vocab.AuctionStatus;
+ 
+ import java.util.List;
+ import java.util.Optional;
+diff --git a/auction-application/src/main/java/com/auction/application/scheduler/AuctionLifecycleScheduler.java b/auction-application/src/main/java/com/auction/application/scheduler/AuctionLifecycleScheduler.java
+index 1b4d0c7..c7369b5 100644
+--- a/auction-application/src/main/java/com/auction/application/scheduler/AuctionLifecycleScheduler.java
++++ b/auction-application/src/main/java/com/auction/application/scheduler/AuctionLifecycleScheduler.java
+@@ -5,7 +5,7 @@ import com.auction.application.event.AuctionFinishedEvent;
+ import com.auction.application.port.AuctionRepository;
+ import com.auction.application.port.EventPublisher;
+ import com.auction.domain.model.auction.Auction;
+-import com.auction.domain.model.auction.AuctionStatus;
++import com.auction.contract.vocab.AuctionStatus;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ 
+diff --git a/auction-application/src/main/java/com/auction/application/service/AuctionService.java b/auction-application/src/main/java/com/auction/application/service/AuctionService.java
+index dea847f..61f616f 100644
+--- a/auction-application/src/main/java/com/auction/application/service/AuctionService.java
++++ b/auction-application/src/main/java/com/auction/application/service/AuctionService.java
+@@ -6,7 +6,7 @@ import com.auction.application.port.AuctionRepository;
+ import com.auction.application.port.IdGenerator;
+ import com.auction.application.port.ItemRepository;
+ import com.auction.domain.model.auction.Auction;
+-import com.auction.domain.model.auction.AuctionStatus;
++import com.auction.contract.vocab.AuctionStatus;
+ import com.auction.domain.model.item.Item;
+ import com.auction.domain.model.user.User;
+ import com.auction.domain.rule.AntiSnipingPolicy;
+@@ -46,7 +46,7 @@ public class AuctionService {
+ 
+         Item item = itemRepository.findById(itemId)
+                 .orElseThrow(() ->
+-                        new NotFoundException("Item not found: " + itemId));
++                        new NotFoundException("Item", itemId));
+ 
+         if (!seller.getId().equals(item.getSellerId())) {
+             throw new UnauthorizedException("You do not own this item");
+@@ -100,7 +100,7 @@ public class AuctionService {
+     private Auction findAuction(String auctionId) {
+         return auctionRepository.findById(auctionId)
+                 .orElseThrow(() ->
+-                        new NotFoundException("Auction not found: " + auctionId));
++                        new NotFoundException("Auction", auctionId));
+     }
+ 
+     private void checkSeller(User user) {
+diff --git a/auction-application/src/main/java/com/auction/application/service/AutoBidService.java b/auction-application/src/main/java/com/auction/application/service/AutoBidService.java
+index ce4f6af..2190f12 100644
+--- a/auction-application/src/main/java/com/auction/application/service/AutoBidService.java
++++ b/auction-application/src/main/java/com/auction/application/service/AutoBidService.java
+@@ -54,7 +54,7 @@ public class AutoBidService {
+         try {
+             Auction auction = auctionRepository.findById(auctionId)
+                     .orElseThrow(() ->
+-                            new NotFoundException("Auction not found: " + auctionId));
++                            new NotFoundException("Auction", auctionId));
+ 
+             AutoBid autoBid = new AutoBid(
+                     bidder.getId(),
+@@ -96,7 +96,7 @@ public class AutoBidService {
+         try {
+             Auction auction = auctionRepository.findById(auctionId)
+                     .orElseThrow(() ->
+-                            new NotFoundException("Auction not found: " + auctionId));
++                            new NotFoundException("Auction", auctionId));
+ 
+             List<AutoBid> autoBids =
+                     autoBidRepository.findByAuctionId(auctionId);
+diff --git a/auction-application/src/main/java/com/auction/application/service/BiddingService.java b/auction-application/src/main/java/com/auction/application/service/BiddingService.java
+index e5d6730..162ce89 100644
+--- a/auction-application/src/main/java/com/auction/application/service/BiddingService.java
++++ b/auction-application/src/main/java/com/auction/application/service/BiddingService.java
+@@ -58,7 +58,7 @@ public class BiddingService {
+         try {
+             Auction auction = auctionRepository.findById(auctionId)
+                     .orElseThrow(() ->
+-                            new NotFoundException("Auction not found: " + auctionId));
++                            new NotFoundException("Auction", auctionId));
+ 
+             Instant now = clock.instant();
+             Instant previousEndTime = auction.getEndTime();
+diff --git a/auction-application/src/main/java/com/auction/application/service/ItemService.java b/auction-application/src/main/java/com/auction/application/service/ItemService.java
+index 2c6b43b..800743a 100644
+--- a/auction-application/src/main/java/com/auction/application/service/ItemService.java
++++ b/auction-application/src/main/java/com/auction/application/service/ItemService.java
+@@ -5,7 +5,7 @@ import com.auction.application.exception.UnauthorizedException;
+ import com.auction.application.port.AuctionRepository;
+ import com.auction.application.port.ItemRepository;
+ import com.auction.domain.model.auction.Auction;
+-import com.auction.domain.model.auction.AuctionStatus;
++import com.auction.contract.vocab.AuctionStatus;
+ import com.auction.domain.model.item.Item;
+ import com.auction.domain.model.user.User;
+ 
+@@ -68,18 +68,18 @@ public class ItemService {
+                     "Cannot delete an item in an active auction");
+         }
+ 
+-        itemRepository.delete(itemId);
++        itemRepository.deleteById(itemId);
+     }
+ 
+     public List<Item> listMyItems(User seller) {
+         checkSeller(seller);
+-        return itemRepository.findBySeller(seller.getId());
++        return itemRepository.findBySellerId(seller.getId());
+     }
+ 
+     private Item findItem(String itemId) {
+         return itemRepository.findById(itemId)
+                 .orElseThrow(() ->
+-                        new NotFoundException("Item not found: " + itemId));
++                        new NotFoundException("Item", itemId));
+     }
+ 
+     private void checkOwnership(User seller, Item item) {
+diff --git a/auction-application/src/main/java/com/auction/application/service/UserService.java b/auction-application/src/main/java/com/auction/application/service/UserService.java
+index 57be82d..5cd3b7b 100644
+--- a/auction-application/src/main/java/com/auction/application/service/UserService.java
++++ b/auction-application/src/main/java/com/auction/application/service/UserService.java
+@@ -44,7 +44,7 @@ public class UserService {
+     private User findUser(String userId) {
+         return userRepository.findById(userId)
+                 .orElseThrow(() ->
+-                        new NotFoundException("User not found: " + userId));
++                        new NotFoundException("User", userId));
+     }
+ 
+     private void checkAdmin(User user) {
+diff --git a/auction-application/src/test/java/com/auction/application/concurrency/BiddingServiceConcurrencyTest.java b/auction-application/src/test/java/com/auction/application/concurrency/BiddingServiceConcurrencyTest.java
+index 900a554..4c58b24 100644
+--- a/auction-application/src/test/java/com/auction/application/concurrency/BiddingServiceConcurrencyTest.java
++++ b/auction-application/src/test/java/com/auction/application/concurrency/BiddingServiceConcurrencyTest.java
+@@ -2,11 +2,12 @@ package com.auction.application.concurrency;
+ 
+ import static org.assertj.core.api.Assertions.assertThat;
+ 
+-import com.auction.application.event.EventBus;
++import com.auction.application.event.InMemoryEventBus;
+ import com.auction.application.port.AuctionRepository;
+ import com.auction.application.service.BiddingService;
++import com.auction.contract.vocab.AuctionStatus;
+ import com.auction.domain.model.auction.Auction;
+-import com.auction.domain.model.auction.BidTransaction;
++import com.auction.domain.model.user.Bidder;
+ import java.math.BigDecimal;
+ import java.time.Clock;
+ import java.time.Instant;
+@@ -14,6 +15,7 @@ import java.time.ZoneOffset;
+ import java.util.ArrayList;
+ import java.util.List;
+ import java.util.Optional;
++import java.util.UUID;
+ import java.util.concurrent.CountDownLatch;
+ import java.util.concurrent.ExecutorService;
+ import java.util.concurrent.Executors;
+@@ -31,7 +33,8 @@ class BiddingServiceConcurrencyTest {
+         auction.start(now);
+         InMemoryAuctions repository = new InMemoryAuctions(auction);
+         BiddingService service = new BiddingService(repository, new AuctionLockRegistry(),
+-                new EventBus(), Clock.fixed(now, ZoneOffset.UTC));
++                new InMemoryEventBus(), () -> UUID.randomUUID().toString(),
++                Clock.fixed(now, ZoneOffset.UTC));
+         int workers = 32;
+         ExecutorService pool = Executors.newFixedThreadPool(workers);
+         CountDownLatch ready = new CountDownLatch(workers);
+@@ -45,7 +48,9 @@ class BiddingServiceConcurrencyTest {
+                     ready.countDown();
+                     go.await();
+                     try {
+-                        service.placeBid("a1", "bidder-" + index, new BigDecimal("200"));
++                        Bidder bidder = new Bidder("bidder-" + index, "user" + index,
++                                "hash", "user" + index + "@example.com");
++                        service.placeBid("a1", bidder, new BigDecimal("200"));
+                         accepted.incrementAndGet();
+                     } catch (RuntimeException rejected) {
+                         assertThat(rejected).isInstanceOf(RuntimeException.class);
+@@ -69,6 +74,7 @@ class BiddingServiceConcurrencyTest {
+         private InMemoryAuctions(Auction initial) { data.put(initial.getId(), initial); }
+         public Optional<Auction> findById(String id) { return Optional.ofNullable(data.get(id)); }
+         public List<Auction> findAll() { return List.copyOf(data.values()); }
++        public List<Auction> findByStatus(AuctionStatus status) { return data.values().stream().filter(a -> a.getStatus() == status).toList(); }
+         public List<Auction> findBySellerId(String sellerId) { return data.values().stream().filter(a -> a.getSellerId().equals(sellerId)).toList(); }
+         public void save(Auction auction) { data.put(auction.getId(), auction); }
+         public void deleteById(String id) { data.remove(id); }

@@ -44,7 +44,7 @@ public class UserService {
     private User findUser(String userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new NotFoundException("User not found: " + userId));
+                        new NotFoundException("User", userId));
     }
 
     private void checkAdmin(User user) {

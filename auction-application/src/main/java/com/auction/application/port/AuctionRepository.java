@@ -1,8 +1,8 @@
 package com.auction.application.port;
 
 import com.auction.domain.model.auction.Auction;
-import com.auction.domain.model.auction.AuctionStatus;
-
+import com.auction.contract.vocab.AuctionStatus;
+import com.auction.contract.vocab.AuctionStatus;
 import java.util.List;
 import java.util.Optional;
 

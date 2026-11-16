@@ -2,11 +2,13 @@ package com.auction.application.concurrency;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.auction.application.event.EventBus;
+import com.auction.application.event.InMemoryEventBus;
 import com.auction.application.port.AuctionRepository;
 import com.auction.application.service.BiddingService;
+import com.auction.contract.vocab.AuctionStatus;
 import com.auction.domain.model.auction.Auction;
 import com.auction.domain.model.auction.BidTransaction;
+import com.auction.domain.model.user.Bidder;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -14,6 +16,7 @@ import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,7 +34,8 @@ class BiddingServiceConcurrencyTest {
         auction.start(now);
         InMemoryAuctions repository = new InMemoryAuctions(auction);
         BiddingService service = new BiddingService(repository, new AuctionLockRegistry(),
-                new EventBus(), Clock.fixed(now, ZoneOffset.UTC));
+                new InMemoryEventBus(), () -> UUID.randomUUID().toString(),
+                Clock.fixed(now, ZoneOffset.UTC));
         int workers = 32;
         ExecutorService pool = Executors.newFixedThreadPool(workers);
         CountDownLatch ready = new CountDownLatch(workers);
@@ -45,7 +49,8 @@ class BiddingServiceConcurrencyTest {
                     ready.countDown();
                     go.await();
                     try {
-                        service.placeBid("a1", "bidder-" + index, new BigDecimal("200"));
+                        Bidder bidder = new Bidder("bidder-" + index, "user" + index, "hash", "user" + index + "@example.com");
+                        service.placeBid("a1", bidder, new BigDecimal("200"));
                         accepted.incrementAndGet();
                     } catch (RuntimeException rejected) {
                         assertThat(rejected).isInstanceOf(RuntimeException.class);
@@ -69,6 +74,7 @@ class BiddingServiceConcurrencyTest {
         private InMemoryAuctions(Auction initial) { data.put(initial.getId(), initial); }
         public Optional<Auction> findById(String id) { return Optional.ofNullable(data.get(id)); }
         public List<Auction> findAll() { return List.copyOf(data.values()); }
+        public List<Auction> findByStatus(AuctionStatus status) { return data.values().stream().filter(a -> a.getStatus() == status).toList(); }
         public List<Auction> findBySellerId(String sellerId) { return data.values().stream().filter(a -> a.getSellerId().equals(sellerId)).toList(); }
         public void save(Auction auction) { data.put(auction.getId(), auction); }
         public void deleteById(String id) { data.remove(id); }

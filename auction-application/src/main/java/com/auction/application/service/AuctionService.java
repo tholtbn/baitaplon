@@ -6,7 +6,7 @@ import com.auction.application.port.AuctionRepository;
 import com.auction.application.port.IdGenerator;
 import com.auction.application.port.ItemRepository;
 import com.auction.domain.model.auction.Auction;
-import com.auction.domain.model.auction.AuctionStatus;
+import com.auction.contract.vocab.AuctionStatus;
 import com.auction.domain.model.item.Item;
 import com.auction.domain.model.user.User;
 import com.auction.domain.rule.AntiSnipingPolicy;
@@ -46,7 +46,7 @@ public class AuctionService {
 
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() ->
-                        new NotFoundException("Item not found: " + itemId));
+                        new NotFoundException("Item", itemId));
 
         if (!seller.getId().equals(item.getSellerId())) {
             throw new UnauthorizedException("You do not own this item");
@@ -100,7 +100,7 @@ public class AuctionService {
     private Auction findAuction(String auctionId) {
         return auctionRepository.findById(auctionId)
                 .orElseThrow(() ->
-                        new NotFoundException("Auction not found: " + auctionId));
+                        new NotFoundException("Auction", auctionId));
     }
 
     private void checkSeller(User user) {

@@ -58,7 +58,7 @@ public class BiddingService {
         try {
             Auction auction = auctionRepository.findById(auctionId)
                     .orElseThrow(() ->
-                            new NotFoundException("Auction not found: " + auctionId));
+                            new NotFoundException("Auction", auctionId));
 
             Instant now = clock.instant();
             Instant previousEndTime = auction.getEndTime();

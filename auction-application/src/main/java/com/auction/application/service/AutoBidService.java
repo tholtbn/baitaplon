@@ -54,7 +54,7 @@ public class AutoBidService {
         try {
             Auction auction = auctionRepository.findById(auctionId)
                     .orElseThrow(() ->
-                            new NotFoundException("Auction not found: " + auctionId));
+                            new NotFoundException("Auction", auctionId));
 
             AutoBid autoBid = new AutoBid(
                     bidder.getId(),
@@ -96,7 +96,7 @@ public class AutoBidService {
         try {
             Auction auction = auctionRepository.findById(auctionId)
                     .orElseThrow(() ->
-                            new NotFoundException("Auction not found: " + auctionId));
+                            new NotFoundException("Auction", auctionId));
 
             List<AutoBid> autoBids =
                     autoBidRepository.findByAuctionId(auctionId);

@@ -5,7 +5,7 @@ import com.auction.application.event.AuctionFinishedEvent;
 import com.auction.application.port.AuctionRepository;
 import com.auction.application.port.EventPublisher;
 import com.auction.domain.model.auction.Auction;
-import com.auction.domain.model.auction.AuctionStatus;
+import com.auction.contract.vocab.AuctionStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
