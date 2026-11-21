@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -11,32 +11,33 @@
     </parent>
 
     <artifactId>auction-infrastructure</artifactId>
-    <name>Auction Infrastructure</name>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <dependencies>
+        <!-- Module nội bộ của dự án -->
         <dependency>
             <groupId>com.auction</groupId>
             <artifactId>auction-application</artifactId>
+            <version>${project.version}</version>
         </dependency>
+
+        <!-- BCrypt cho BCryptPasswordHasher -->
         <dependency>
-            <groupId>com.auction</groupId>
-            <artifactId>auction-domain</artifactId>
+            <groupId>org.mindrot</groupId>
+            <artifactId>jbcrypt</artifactId>
+            <version>0.4</version>
         </dependency>
-        <dependency>
-            <groupId>com.auction</groupId>
-            <artifactId>auction-contract</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>at.favre.lib</groupId>
-            <artifactId>bcrypt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
+
+        <!-- Driver cơ sở dữ liệu (giữ lại hoặc điều chỉnh theo DB dự án đang dùng) -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <version>2.2.224</version>
             <scope>runtime</scope>
         </dependency>
     </dependencies>

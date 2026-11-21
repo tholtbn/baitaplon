@@ -208,6 +208,28 @@ public class Auction extends Entity {
     public List<BidTransaction> getBids() {
         return Collections.unmodifiableList(bids);
     }
+    public static Auction restore(
+            String id,
+            String itemId,
+            String sellerId,
+            BigDecimal startingPrice,
+            BigDecimal currentPrice,
+            String leaderId,
+            Instant startTime,
+            Instant endTime,
+            AntiSnipingPolicy antiSniping,
+            AuctionStatus status,
+            List<BidTransaction> bids) {
+        Auction auction = new Auction(id, itemId, sellerId, startingPrice, startTime, endTime, antiSniping);
+        auction.currentPrice = Guard.requireNonNull(currentPrice, "currentPrice");
+        auction.leaderId = leaderId;
+        auction.status = Guard.requireNonNull(status, "status");
+        auction.bids.clear();
+        if (bids != null) {
+            auction.bids.addAll(bids);
+        }
+        return auction;
+    }
 
     @Override
     public String printInfo() {
