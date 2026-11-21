@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" spacing="12" prefWidth="480" prefHeight="360"
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.auction.client.controller.LoginController">
+    <padding>
+        <Insets top="30" right="40" bottom="30" left="40"/>
+    </padding>
+
+    <Label text="ONLINE AUCTION" styleClass="title"/>
+    <TextField fx:id="txtUsername" promptText="Tên đăng nhập" maxWidth="280"/>
+    <PasswordField fx:id="txtPassword" promptText="Mật khẩu" maxWidth="280"/>
+    <Button text="Đăng nhập" onAction="#handleLogin" maxWidth="280" styleClass="primary-btn"/>
+    <Hyperlink text="Chưa có tài khoản? Đăng ký ngay" onAction="#handleGoToRegister"/>
+    <Label fx:id="lblError" styleClass="error-label" wrapText="true"/>
+</VBox>
