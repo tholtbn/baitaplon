@@ -9,14 +9,14 @@ import com.auction.domain.model.user.User;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-final class DtoMapper {
+public final class DtoMapper {
     private DtoMapper() {}
 
-    static UserDto user(User user) {
+    public static UserDto user(User user) {
         return new UserDto(user.getId(), user.getUsername(), user.getEmail(), user.getRole());
     }
 
-    static ItemDto item(Item item) {
+    public static ItemDto item(Item item) {
         Map<String, String> attributes = new LinkedHashMap<>();
         ItemType type = item.getType();
         if (item instanceof Electronics electronics) {
@@ -34,12 +34,12 @@ final class DtoMapper {
                 item.getStartingPrice(), type, attributes);
     }
 
-    static BidDto bid(BidTransaction bid) {
+    public static BidDto bid(BidTransaction bid) {
         return new BidDto(bid.getId(), bid.getAuctionId(), bid.getBidderId(),
                 bid.getAmount(), bid.getPlacedAt());
     }
 
-    static AuctionDto auction(Auction auction, Item item) {
+    public static AuctionDto auction(Auction auction, Item item) {
         return new AuctionDto(auction.getId(), item == null ? null : item(item),
                 auction.getSellerId(), auction.getStatus(), auction.getCurrentPrice(),
                 auction.getLeaderId().orElse(null), auction.getStartTime(),
