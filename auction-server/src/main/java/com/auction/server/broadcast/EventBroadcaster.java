@@ -17,13 +17,34 @@ public class EventBroadcaster implements EventListener<DomainEvent> {
 
     @Override
     public void on(DomainEvent event) {
+        if (event == null || sessionRegistry == null) {
+            return;
+        }
+
         if (event instanceof BidPlacedEvent bEvent) {
             String jsonPayload = toJsonPayload(bEvent);
-            Set<ClientSession> subscribers = sessionRegistry.getSubscribers(bEvent.auctionId());
-            if (subscribers != null) {
-                for (ClientSession session : subscribers) {
-                    session.sendResponse(jsonPayload);
-                }
+            broadcastToAuction(bEvent.auctionId(), jsonPayload);
+        }
+        // Khi có thêm DomainEvent (ví dụ AuctionExtendedEvent, AuctionFinishedEvent),
+        // thêm nhánh else if tương tự tại đây và gọi broadcastToAuction(auctionId, payload).
+    }
+
+    public void broadcastToAuction(String auctionId, String jsonPayload) {
+        if (auctionId == null || auctionId.isBlank() || jsonPayload == null) {
+            return;
+        }
+        Set<ClientSession> subscribers = sessionRegistry.getSubscribers(auctionId);
+        if (subscribers == null || subscribers.isEmpty()) {
+            return;
+        }
+        for (ClientSession session : subscribers) {
+            if (session == null) {
+                continue;
+            }
+            try {
+                session.sendResponse(jsonPayload);
+            } catch (Exception ignored) {
+                // Tránh làm gián đoạn broadcast tới các client khác nếu một kết nối vừa đóng
             }
         }
     }
