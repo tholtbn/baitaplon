@@ -51,4 +51,7 @@ public class ClientSession implements Runnable {
     public String getUserId() { return userId; }
     public void setToken(String token) { this.token = token; }
     public String getToken() { return token; }
+
+    public void setAuthenticated(String userId, String token) {
+    }
 }

@@ -1,12 +1,9 @@
 package com.auction.infrastructure.config;
 
-import com.auction.application.concurrency.AuctionLockRegistry;
-import com.auction.application.port.IdGenerator;
-import com.auction.application.port.TokenService;
-import com.auction.application.service.AuctionService;
-import com.auction.application.service.AuthService;
-import com.auction.application.service.BiddingService;
-import com.auction.application.service.ItemService;
+import com.auction.infrastructure.dao.AuctionDao;
+import com.auction.infrastructure.dao.BidDao;
+import com.auction.infrastructure.dao.ItemDao;
+import com.auction.infrastructure.dao.UserDao;
 import com.auction.infrastructure.event.InMemoryEventBus;
 import com.auction.infrastructure.persistence.DataSourceProvider;
 import com.auction.infrastructure.persistence.SchemaInitializer;
@@ -15,60 +12,101 @@ import com.auction.infrastructure.repository.JdbcItemRepository;
 import com.auction.infrastructure.repository.JdbcUserRepository;
 import com.auction.infrastructure.security.BCryptPasswordHasher;
 import com.auction.infrastructure.security.InMemoryTokenService;
-import com.auction.infrastructure.security.UuidGenerator;
-
-import java.time.Clock;
 
 public class AppConfig {
-    private static AppConfig instance;
+    private static volatile AppConfig instance;
 
     private final DataSourceProvider dataSourceProvider;
     private final SchemaInitializer schemaInitializer;
+
+    private final UserDao userDao;
+    private final ItemDao itemDao;
+    private final AuctionDao auctionDao;
+    private final BidDao bidDao;
+
     private final JdbcUserRepository userRepository;
     private final JdbcItemRepository itemRepository;
     private final JdbcAuctionRepository auctionRepository;
-    private final BCryptPasswordHasher passwordHasher;
-    private final InMemoryEventBus eventBus;
-    private final AuctionLockRegistry lockRegistry;
-    private final Clock clock;
 
-    private final AuthService authService;
-    private final BiddingService biddingService;
-    private final AuctionService auctionService;
-    private final ItemService itemService;
+    private final BCryptPasswordHasher passwordHasher;
+    private final InMemoryTokenService tokenService;
+    private final InMemoryEventBus eventBus;
 
     private AppConfig() {
         this.dataSourceProvider = DataSourceProvider.getInstance();
-        this.schemaInitializer = new SchemaInitializer(dataSourceProvider);
+        this.schemaInitializer = new SchemaInitializer(this.dataSourceProvider);
         this.schemaInitializer.initialize();
 
-        this.userRepository = new JdbcUserRepository(dataSourceProvider);
-        this.itemRepository = new JdbcItemRepository(dataSourceProvider);
-        this.auctionRepository = new JdbcAuctionRepository(dataSourceProvider);
+        this.userDao = new UserDao(this.dataSourceProvider);
+        this.itemDao = new ItemDao(this.dataSourceProvider);
+        this.auctionDao = new AuctionDao(this.dataSourceProvider);
+        this.bidDao = new BidDao(this.dataSourceProvider);
+
+        this.userRepository = new JdbcUserRepository(this.userDao);
+        this.itemRepository = new JdbcItemRepository(this.itemDao);
+        this.auctionRepository = new JdbcAuctionRepository(this.auctionDao, this.bidDao, this.itemDao);
+
         this.passwordHasher = new BCryptPasswordHasher();
+        this.tokenService = new InMemoryTokenService();
         this.eventBus = new InMemoryEventBus();
-        this.lockRegistry = new AuctionLockRegistry();
-        this.clock = Clock.systemUTC();
-
-        IdGenerator idGenerator = new UuidGenerator();
-        TokenService tokenService = new InMemoryTokenService();
-
-        this.authService = new AuthService(userRepository, passwordHasher, tokenService, idGenerator);
-        this.biddingService = new BiddingService(auctionRepository, lockRegistry, eventBus, idGenerator, clock);
-        this.auctionService = new AuctionService(auctionRepository, itemRepository, idGenerator, clock);
-        this.itemService = new ItemService(itemRepository, auctionRepository);
     }
 
-    public static synchronized AppConfig getInstance() {
+    public static AppConfig getInstance() {
         if (instance == null) {
-            instance = new AppConfig();
+            synchronized (AppConfig.class) {
+                if (instance == null) {
+                    instance = new AppConfig();
+                }
+            }
         }
         return instance;
     }
 
-    public AuthService getAuthService() { return authService; }
-    public BiddingService getBiddingService() { return biddingService; }
-    public AuctionService getAuctionService() { return auctionService; }
-    public ItemService getItemService() { return itemService; }
-    public InMemoryEventBus getEventBus() { return eventBus; }
+    public DataSourceProvider getDataSourceProvider() {
+        return dataSourceProvider;
+    }
+
+    public SchemaInitializer getSchemaInitializer() {
+        return schemaInitializer;
+    }
+
+    public UserDao getUserDao() {
+        return userDao;
+    }
+
+    public ItemDao getItemDao() {
+        return itemDao;
+    }
+
+    public AuctionDao getAuctionDao() {
+        return auctionDao;
+    }
+
+    public BidDao getBidDao() {
+        return bidDao;
+    }
+
+    public JdbcUserRepository getUserRepository() {
+        return userRepository;
+    }
+
+    public JdbcItemRepository getItemRepository() {
+        return itemRepository;
+    }
+
+    public JdbcAuctionRepository getAuctionRepository() {
+        return auctionRepository;
+    }
+
+    public BCryptPasswordHasher getPasswordHasher() {
+        return passwordHasher;
+    }
+
+    public InMemoryTokenService getTokenService() {
+        return tokenService;
+    }
+
+    public InMemoryEventBus getEventBus() {
+        return eventBus;
+    }
 }

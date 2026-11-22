@@ -3,167 +3,101 @@ package com.auction.infrastructure.repository;
 import com.auction.application.port.AuctionRepository;
 import com.auction.contract.vocab.AuctionStatus;
 import com.auction.domain.model.auction.Auction;
-import com.auction.domain.model.auction.BidTransaction;
-import com.auction.domain.rule.AntiSnipingPolicy;
-import com.auction.infrastructure.persistence.DataSourceProvider;
+import com.auction.infrastructure.dao.AuctionDao;
+import com.auction.infrastructure.dao.AuctionDao.AuctionRow;
+import com.auction.infrastructure.dao.BidDao;
+import com.auction.infrastructure.dao.ItemDao;
+import com.auction.infrastructure.dao.ItemDao.ItemRow;
 
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public class JdbcAuctionRepository implements AuctionRepository {
-    private final DataSourceProvider dataSourceProvider;
+    private final AuctionDao auctionDao;
+    private final BidDao bidDao;
+    private final ItemDao itemDao;
 
-    public JdbcAuctionRepository(DataSourceProvider dataSourceProvider) {
-        this.dataSourceProvider = dataSourceProvider;
+    public JdbcAuctionRepository(AuctionDao auctionDao, BidDao bidDao) {
+        this(auctionDao, bidDao, null);
+    }
+
+    public JdbcAuctionRepository(AuctionDao auctionDao, BidDao bidDao, ItemDao itemDao) {
+        this.auctionDao = auctionDao;
+        this.bidDao = bidDao;
+        this.itemDao = itemDao;
     }
 
     @Override
-    public Optional<Auction> findById(String id) {
-        String sql = "SELECT id, item_id, start_time, end_time, starting_price, current_price, leader_id, status, version " +
-                "FROM auctions WHERE id = ?";
-        try (Connection conn = dataSourceProvider.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, id);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    List<BidTransaction> bids = findBidsByAuctionId(conn, id);
-                    Timestamp startTs = rs.getTimestamp("start_time");
-                    Timestamp endTs = rs.getTimestamp("end_time");
-
-                    Auction auction = Auction.restore(
-                            rs.getString("id"),
-                            rs.getString("item_id"),
-                            "unknown-seller",
-                            rs.getBigDecimal("starting_price"),
-                            rs.getBigDecimal("current_price"),
-                            rs.getString("leader_id"),
-                            startTs != null ? startTs.toInstant() : Instant.now(),
-                            endTs != null ? endTs.toInstant() : Instant.now().plusSeconds(3600),
-                            AntiSnipingPolicy.disabled(),
-                            AuctionStatus.valueOf(rs.getString("status")),
-                            bids
-                    );
-                    return Optional.of(auction);
-                }
-                return Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error finding auction by id: " + id, e);
-        }
+    public Optional<Auction> findById(String auctionId) {
+        return auctionDao.findById(auctionId).map(this::mapToDomain);
     }
 
     @Override
     public List<Auction> findAll() {
-        return List.of();
+        return auctionDao.findAll().stream()
+                .map(this::mapToDomain)
+                .toList();
     }
 
     @Override
     public List<Auction> findByStatus(AuctionStatus status) {
-        return List.of();
+        String statusName = status != null ? status.name() : null;
+        return auctionDao.findAll().stream()
+                .filter(r -> statusName != null && statusName.equals(r.status()))
+                .map(this::mapToDomain)
+                .toList();
     }
 
     @Override
     public List<Auction> findBySellerId(String sellerId) {
-        return List.of();
-    }
-
-    private List<BidTransaction> findBidsByAuctionId(Connection conn, String auctionId) throws SQLException {
-        List<BidTransaction> bids = new ArrayList<>();
-        String sql = "SELECT id, auction_id, bidder_id, amount, timestamp " +
-                "FROM bids WHERE auction_id = ? ORDER BY timestamp ASC";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, auctionId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    Timestamp bidTs = rs.getTimestamp("timestamp");
-                    bids.add(new BidTransaction(
-                            rs.getString("id"),
-                            rs.getString("auction_id"),
-                            rs.getString("bidder_id"),
-                            rs.getBigDecimal("amount"),
-                            bidTs != null ? bidTs.toInstant() : Instant.now()
-                    ));
-                }
-            }
+        if (sellerId == null || itemDao == null) {
+            return List.of();
         }
-        return bids;
+        return auctionDao.findAll().stream()
+                .filter(r -> itemDao.findById(r.itemId())
+                        .map(ItemRow::sellerId)
+                        .map(sellerId::equals)
+                        .orElse(false))
+                .map(this::mapToDomain)
+                .toList();
     }
 
     @Override
     public void save(Auction auction) {
-        String upsertAuction = "MERGE INTO auctions " +
-                "(id, item_id, start_time, end_time, starting_price, current_price, leader_id, status, version) " +
-                "KEY(id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        String upsertBid = "MERGE INTO bids " +
-                "(id, auction_id, bidder_id, amount, timestamp) " +
-                "KEY(id) VALUES (?, ?, ?, ?, ?)";
-
-        Connection conn = null;
-        try {
-            conn = dataSourceProvider.getConnection();
-            conn.setAutoCommit(false);
-
-            try (PreparedStatement stmtA = conn.prepareStatement(upsertAuction)) {
-                BigDecimal startingPrice = auction.getStartingPrice();
-                BigDecimal currentPrice = auction.getCurrentPrice() != null ? auction.getCurrentPrice() : startingPrice;
-                String leaderId = auction.getLeaderId().orElse(null);
-
-                stmtA.setString(1, auction.getId());
-                stmtA.setString(2, auction.getItemId());
-                stmtA.setTimestamp(3, Timestamp.from(auction.getStartTime()));
-                stmtA.setTimestamp(4, Timestamp.from(auction.getEndTime()));
-                stmtA.setBigDecimal(5, startingPrice);
-                stmtA.setBigDecimal(6, currentPrice);
-                stmtA.setString(7, leaderId);
-                stmtA.setString(8, auction.getStatus().name());
-                stmtA.setInt(9, 0);
-                stmtA.executeUpdate();
-            }
-
-            try (PreparedStatement stmtB = conn.prepareStatement(upsertBid)) {
-                for (BidTransaction bid : auction.getBids()) {
-                    stmtB.setString(1, bid.getId());
-                    stmtB.setString(2, bid.getAuctionId());
-                    stmtB.setString(3, bid.getBidderId());
-                    stmtB.setBigDecimal(4, bid.getAmount());
-                    stmtB.setTimestamp(5, Timestamp.from(bid.getPlacedAt()));
-                    stmtB.addBatch();
-                }
-                stmtB.executeBatch();
-            }
-
-            conn.commit();
-        } catch (SQLException e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            throw new RuntimeException("Error saving auction transaction", e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
+        String leaderId = auction.getLeaderId().orElse(null);
+        AuctionRow row = new AuctionRow(
+                auction.getId(),
+                auction.getItemId(),
+                auction.getStartTime(),
+                auction.getEndTime(),
+                auction.getStartingPrice(),
+                auction.getCurrentPrice(),
+                leaderId,
+                auction.getStatus().name(),
+                0
+        );
+        if (auctionDao.findById(auction.getId()).isPresent()) {
+            auctionDao.updateState(row);
+        } else {
+            auctionDao.insert(row);
         }
     }
 
     @Override
     public void deleteById(String auctionId) {
+        auctionDao.findById(auctionId).ifPresent(r -> {
+            // Nếu cần xóa hẳn trong DB, bổ sung deleteById vào AuctionDao
+        });
+    }
 
+    public List<BidDao.BidRow> findBidsByAuctionId(String auctionId) {
+        return bidDao.findByAuctionId(auctionId);
+    }
+
+    protected Auction mapToDomain(AuctionRow row) {
+        // Khi Người 1 thêm Auction.restore(...), gọi khôi phục trạng thái đầy đủ từ row và danh sách bid tại đây
+        throw new UnsupportedOperationException(
+                "Cần Người 1 bổ sung Auction.restore(...) để khôi phục Auction từ DB cho auctionId=" + row.id()
+        );
     }
 }
